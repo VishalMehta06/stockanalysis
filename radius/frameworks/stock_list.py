@@ -1,7 +1,9 @@
 # Third Party Imports
 import pandas
 import xlwings
-import radius.src.radius as radius
+
+# Local Imports
+import radius
 
 def create_workbook(path: str, sheet_name: str):
 	"""

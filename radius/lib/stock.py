@@ -1,6 +1,3 @@
-# Standard Library imports
-import os
-
 # Third-party imports
 import lxml.html
 import matplotlib.pyplot as plt
@@ -145,7 +142,7 @@ class Stock:
 		except:
 			print("You must regenerate dependent data if none exists: \
 		 		  gen_dcf(regen_dep_data = True)")
-			os._exit(0)
+			return
 
 		self.price = self.normalize_num(self.statistics["price"])
 		self.shares_outstanding = self.normalize_num(self.statistics["shares-outstanding"])
