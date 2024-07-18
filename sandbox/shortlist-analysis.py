@@ -1,4 +1,4 @@
-import radius.src.radius as radius
+import radius
 
 file = open("stocks.txt", "r")
 stocks = [i.strip("\n") for i in file.readlines()]
