@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
 	name="RADIUS",
-	version="0.0.0",
+	version="0.0.1",
 	description="This package will calculate DCFs for US Securities.",
 	author="Vishal Mehta",
 	author_email="vvmehta06@gmail.com",
