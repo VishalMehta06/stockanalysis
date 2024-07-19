@@ -1,13 +1,13 @@
-from setups import dcf
+import stockanalysis as sa
 
 if __name__ == "__main__":
-	# file = open("setups/stocks.txt", "r")
-	# stocks = [i.strip("\n") for i in file.readlines()]
-	# dcf.multi_dcfs(stocks, "stock-valuations.xlsx")
 	while True:
 		ticker = input("Ticker:  ")
 		tgr = float(input("Terminal Growth Rate:  "))/100
 		discount_rate = float(input("Min. Discount Rate:  "))/100
 		print("")
-		print(dcf.one_dcf(ticker, "DCF.xlsx", tgr, discount_rate))
+		try:
+			print(sa.single_dcf(ticker, terminal_growth_rate=tgr, min_discount_rate=discount_rate))
+		except:
+			print("~~ ERROR ~~")
 		print("")
