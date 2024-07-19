@@ -1,13 +1,12 @@
 # Third-party imports
-import lxml.html
-import matplotlib.pyplot as plt
 import pandas
-import requests
-from bs4 import BeautifulSoup
+
+# Local Imports
+import stockanalysis as sa
 
 
 class Stock:
-	def __init__(self, ticker: str, terminal_growth_rate: float = 0.04, min_discount_rate: float = 0.05, 
+	def __init__(self, ticker: str, terminal_growth_rate: float = 0.03, min_discount_rate: float = 0.05, 
 			     risk_free_rate: float = 0.047, market_return: float = 0.08, default_beta: float = 1.3) -> None:
 		"""
 		Access historical data and analyst predictions from stockanalysis.com for any company available on the site.
@@ -37,65 +36,21 @@ class Stock:
 		self.market_return = market_return
 		self.terminal_growth_rate = terminal_growth_rate
 
-	def gen_financials(self, document: int = 1) -> None:
+	def gen_financials(self, document: int) -> None:
 		"""
 		Generates either the Income Statement, Balance Sheet, or Statement of Cash Flows as a pandas DataFrame.
 
 		:param document: An integer where 1=Income Statement, 2=Balance Sheet, 3=Statement of Cash Flows. Nothing is
 			generated for other values.
 		"""
-		if document == 1:
-			webpage = requests.get("https://stockanalysis.com/stocks/" + self.ticker + "/financials/")
-		elif document == 2:
-			webpage = requests.get("https://stockanalysis.com/stocks/" + self.ticker + "/financials/balance-sheet/")
-		elif document == 3:
-			webpage = requests.get("https://stockanalysis.com/stocks/" + self.ticker + "/financials/cash-flow-statement")
-		else:
-			return
-
-		soup = BeautifulSoup(webpage.text, "lxml")
-		find_table = soup.find("table")
-		rows = find_table.find_all("tr")
-
-		headers = [j.text.strip("\n\t ") for j in find_table.find("tr").find_all("th")]
-
-		array = []
-		for i in rows:
-			table_data = i.find_all("td")
-			data = [j.text.strip("\n\t ") for j in table_data]
-			array.append(data)
-
-		df = pandas.DataFrame(list(array[1::]))
-		df.columns = headers
-		df = df.drop(headers[-1], axis=1)
-		df = df.set_index("Year Ending")
-
-		self.financials[document-1] = df
+		self.financials[document-1] = sa.scrape_financials(self.ticker, document)
 
 	def gen_forecast(self) -> None:
 		"""
 		Generates a pandas DataFrame containing analyst forecasts for Revenue and EPS as well as the # of analysts and
 			the forward PE.
 		"""
-		webpage = requests.get("https://stockanalysis.com/stocks/" + self.ticker + "/forecast/")
-		soup = BeautifulSoup(webpage.text, "lxml")
-		find_table_parent = soup.find("div", attrs={"data-test": "forecast-financial-table"})
-		find_table = find_table_parent.find("table")
-		rows = find_table.find_all("tr")
-
-		headers = [j.text.strip("\n\t ") for j in find_table.find("tr").find_all("th")]
-
-		array = []
-		for i in rows:
-			table_data = i.find_all("td")
-			data = [j.text for j in table_data]
-			array.append(data)
-
-		df = pandas.DataFrame(list(array[1::]))
-		df.columns = headers
-		df = df.set_index("Year")
-
-		self.forecast = df
+		self.forecast = sa.scrape_forecast(self.ticker)
 	
 	def gen_statistics(self) -> None:
 		"""
@@ -104,19 +59,7 @@ class Stock:
 			"shares-outstanding"
 			"price"
 		"""
-		# Get the webpage as XML
-		webpage = requests.get("https://stockanalysis.com/stocks/" + self.ticker + "/statistics/", stream=True)
-		webpage.raw.decode_content = True
-		tree = lxml.html.parse(webpage.raw)
-		result = {}
-
-		result["beta"] = tree.xpath(
-			"/html/body/div/div[1]/div[2]/main/div[2]/div[2]/div[1]/table/tbody/tr[1]/td[2]/text()")[0]
-		result["shares-outstanding"] = tree.xpath(
-			"/html/body/div/div[1]/div[2]/main/div[2]/div[1]/div[4]/table/tbody/tr[1]/td[2]/text()")[0]
-		result["price"] = tree.xpath("/html/body/div/div[1]/div[2]/main/div[1]/div[2]/div/div[1]/text()")[0]
-
-		self.statistics = result
+		self.statistics = sa.scrape_statistics(self.ticker)
 
 	def gen_dcf(self, auto_terminal_growth_rate: bool = True, regen_dep_data = True) -> None:
 		"""
@@ -144,12 +87,8 @@ class Stock:
 		# Establish Assumptions
 		try:
 			self.beta = float(self.statistics["beta"])
-		except TypeError:
-			pass
 		except:
-			print("You must regenerate dependent data if none exists: \
-		 		  gen_dcf(regen_dep_data = True)")
-			return
+			pass
 
 		self.price = self.normalize_num(self.statistics["price"])
 		self.shares_outstanding = self.normalize_num(self.statistics["shares-outstanding"])
@@ -279,29 +218,3 @@ class Stock:
 		if value[-1] == "M":
 			return float(value[0:(len(value) - 1)].replace(",", ""))
 		return float(value.replace(",", ""))
-		
-	def varying_tgr(self, terminal_growth_rate_range=(0.01, 0.05), num_dcfs=5) -> None:
-		"""
-		Vary the Terminal Growth Rate with the range and number of data points given. It will print the DCF and display 
-			a graph with following axis: x = Terminal Growth Rate, y = Margin of Safety.
-		
-		:param terminal_growth_rate_range: A tuple representing the inclusive bounds for the range of the Terminal 
-			Growth Rate.
-		:param num_dcfs: The number of data points that will be used. A DCF will be done for each data point.
-		"""
-		df = pandas.DataFrame(columns=["Terminal Growth Rate", "DCF Margin"])
-		step = (terminal_growth_rate_range[1]-terminal_growth_rate_range[0])/(num_dcfs-1)
-		variable = terminal_growth_rate_range[0]
-		for _ in range(num_dcfs):
-			self.terminal_growth_rate = variable
-			if variable == terminal_growth_rate_range[0]:
-				self.gen_dcf(False, True)
-			else:
-				self.gen_dcf(False, False)
-			df.loc[len(df)] = [variable*100, float(self.dcf_margin.strip("%"))]
-			variable += step
-		print(df)
-		print("\n")
-		print(self.dcf)
-		plt.plot(df["Terminal Growth Rate"], df["DCF Margin"])
-		plt.show()
