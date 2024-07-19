@@ -11,7 +11,6 @@ setup(
 	requires=[
 		"pandas",
 		"xlwings",
-		"matplotlib",
 		"requests",
 		"bs4",
 		"setuptools",
