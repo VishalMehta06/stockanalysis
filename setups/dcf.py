@@ -32,22 +32,25 @@ def one_dcf(ticker: str, results_fname: str, terminal_growth_rate: float = 0.04,
 	:param market_return: The expected return for the market subset that is being analyzed.
 	:param default_beta: The beta to use if no 5 Year beta is available on stockanalysis.com.
 	"""
-	stock = sa.Stock(ticker, terminal_growth_rate, min_discount_rate, risk_free_rate, market_return, default_beta)
-	stock.gen_dcf(auto_terminal_growth_rate=False)
+	try:
+		stock = sa.Stock(ticker, terminal_growth_rate, min_discount_rate, risk_free_rate, market_return, default_beta)
+		stock.gen_dcf(auto_terminal_growth_rate=False)
 
-	results_fname = "results/" + results_fname
+		results_fname = "results/" + results_fname
 
-	sa.create_workbook(results_fname, ticker.upper())
-	stock.dcf
+		sa.create_workbook(results_fname, ticker.upper())
+		stock.dcf
 
-	with xlwings.App(visible=False) as app:
-		wb = app.books.open(results_fname)
-		wb.sheets(ticker.upper()).range("A1").value = stock.dcf
-		wb.sheets(ticker.upper()).range('B1', 'Z100').api.HorizontalAlignment = xlwings.constants.HAlign.xlHAlignCenter
-		wb.sheets(ticker.upper()).range('A1', 'A100').api.HorizontalAlignment = xlwings.constants.HAlign.xlHAlignLeft
-		wb.sheets(ticker.upper()).range('A1', 'L1').font.bold = True
-		wb.sheets(ticker.upper()).range('A1', 'A100').font.bold = True
-		wb.sheets(ticker.upper()).range('L20', 'L21').font.bold = True
-		wb.sheets(ticker.upper()).range('A1', 'Z100').autofit()
-		wb.save()
-	return stock.dcf
+		with xlwings.App(visible=False) as app:
+			wb = app.books.open(results_fname)
+			wb.sheets(ticker.upper()).range("A1").value = stock.dcf
+			wb.sheets(ticker.upper()).range('B1', 'Z100').api.HorizontalAlignment = xlwings.constants.HAlign.xlHAlignCenter
+			wb.sheets(ticker.upper()).range('A1', 'A100').api.HorizontalAlignment = xlwings.constants.HAlign.xlHAlignLeft
+			wb.sheets(ticker.upper()).range('A1', 'L1').font.bold = True
+			wb.sheets(ticker.upper()).range('A1', 'A100').font.bold = True
+			wb.sheets(ticker.upper()).range('L20', 'L21').font.bold = True
+			wb.sheets(ticker.upper()).range('A1', 'Z100').autofit()
+			wb.save()
+		return stock.dcf
+	except:
+		print(f"~~ An error has occurred, the DCF for {ticker.upper()} is unavailable ~~")
