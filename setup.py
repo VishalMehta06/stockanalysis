@@ -8,12 +8,14 @@ setup(
 	author="Vishal Mehta",
 	author_email="vvmehta06@gmail.com",
 	url="https://github.com/VishalMehta06/RADIUS",
-	requires=[],
-	packages=find_packages(exclude=("tests*", "testing*")),
-	# EXAMPLE ENTRY POINTS
-	# entry_points={
-	# 	"console_scripts" : [
-	# 		"stock_list_dcf = radius.stock_list:stock_list_dcf"
-	# 	],
-	# }
+	requires=[
+		"pandas",
+		"xlwings",
+		"matplotlib",
+		"requests",
+		"bs4",
+		"setuptools",
+		"openpyxl"
+	],
+	packages=find_packages(),
 )

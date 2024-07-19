@@ -13,6 +13,13 @@ class Stock:
 		Access historical data and analyst predictions from stockanalysis.com for any company available on the site.
 
 		:param ticker: A string containing the ticker of the company.
+		:param terminal_growth_rate: The terminal growth rate used if another is not generated
+		 	when running a DCF.
+		:param min_discount_rate: The minimum discount rate allowed.
+		:param risk_free_rate: The risk free rate assumed. Generally return of US Treasury for desired 
+			time period.
+		:param market_return: The expected return for the market subset that is being analyzed.
+		:param default_beta: The beta to use if no 5 Year beta is available on stockanalysis.com.
 		"""
 		self.financials = [pandas.DataFrame(), pandas.DataFrame(), pandas.DataFrame()]
 		self.forecast = pandas.DataFrame()

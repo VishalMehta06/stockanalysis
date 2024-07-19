@@ -3,17 +3,7 @@ import pandas
 import xlwings
 
 # Local Imports
-import radius
-
-def create_workbook(path: str, sheet_name: str):
-	"""
-	Helper method to create a new Excel spreadsheet.
-
-	:param path: The path including name where the file will be created at.
-	:param sheet_name: The name of the first sheet that will be created.
-	"""
-	df = pandas.DataFrame()
-	df.to_excel(excel_writer=path, sheet_name=sheet_name)
+import stockanalysis as sa
 
 def stock_list_dcf(tickers: list[str], results_fname: str, sort: bool = True) -> None:
 	"""
@@ -22,7 +12,7 @@ def stock_list_dcf(tickers: list[str], results_fname: str, sort: bool = True) ->
 		results of each stock.
 
 	:param tickers: This list of strings contains all tickers that will be evaluated.
-	:param results_fname: The file name of the results excel sheet. 
+	:param results_fname: The file name of the results excel sheet. Must end with .xlsx
 	:param sort: True = Sort the results A-Z both on the Summary and individual stock sheets. 
 		False = Order of tickers is maintained as provided.
 	"""
@@ -34,7 +24,7 @@ def stock_list_dcf(tickers: list[str], results_fname: str, sort: bool = True) ->
 			wb = app.books.open(results_fname)
 			current_sheets = [sheet.name for sheet in wb.sheets]
 		except:
-			create_workbook(results_fname, "Summary")
+			sa.create_workbook(results_fname, "Summary")
 			wb = app.books.open(results_fname)
 			current_sheets = [sheet.name for sheet in wb.sheets]
 
@@ -44,7 +34,7 @@ def stock_list_dcf(tickers: list[str], results_fname: str, sort: bool = True) ->
 	count = 1
 	for i in range(len(tickers)):
 		ticker = tickers[i]
-		stock = radius.Stock(ticker)
+		stock = sa.Stock(ticker)
 		try:
 			stock.gen_dcf()
 			df.loc[i] = [count, ticker.upper(), "$"+str(stock.price), str(stock.discount_rate*100)+"%", str(stock.terminal_growth_rate*100)+"%", stock.dcf_margin]
