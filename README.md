@@ -78,6 +78,12 @@ import stockanalysis as sa
 1. [Stock Object](#stock-object)
 	* [Attributes](#stock-attributes)
 	* [Functions](#stock-functions)
+2. [Other Functions]()
+	* [create_workbook()](#create_workbook)
+	* [export_dataframe()](#export_dataframe)
+	* [scrape_financials()](#scrape_financials)
+	* [scrape_forecast()](#scrape_forecast)
+	* [scrape_statistics()](#scrape_statistics)
 
 
 #### Stock Object
@@ -233,5 +239,65 @@ It creates a `Stock` object that represents a `ticker` and the attributes that g
 	
 	:param regen_dep_data: True = fetch all financials, forecasts, and statistics from https://stockanalysis.com. 
 		False = Use data fetched previously.
+	"""
+	```
+
+#### Other Functions
+
+#### create_workbook()
+* `create_workbook(path: str, sheet_name: str) -> None`
+	```
+	"""
+	Helper method to create a new Excel spreadsheet.
+
+	:param path: The path including name where the file will be created at.
+	:param sheet_name: The name of the first sheet that will be created.
+	"""
+	```
+
+#### export_dataframe()
+* `export_dataframe(df: pandas.DataFrame, fname: str, sheet_name: str) -> None`
+	```
+	"""
+	Export a pandas.DataFrame to an excel spreadsheet with the proper formatting.
+
+	:param df: The pandas.DataFrame that we want to export. This can be a financials document, 
+		forecast, DCF, and so on.
+	:param sheet_name: The name of the file that the pandas.DataFrame will be exported to. Must 
+		end with .xlsx.
+	"""
+	```
+
+#### scrape_financials()
+* `scrape_financials(ticker: str, document: int) -> pandas.DataFrame`
+	```
+	"""
+	Returns either the Income Statement, Balance Sheet, or Statement of Cash Flows as a pandas DataFrame.
+
+	:param ticker: The string ticker of the company.
+	:param document: An integer where 1=Income Statement, 2=Balance Sheet, 3=Statement of Cash Flows. Nothing is
+		generated for other values.
+	"""
+	```
+
+#### scrape_forecast()
+* `scrape_forecast(ticker: str) -> pandas.DataFrame`
+	```
+	"""
+	Returns a pandas DataFrame containing analyst forecasts for Revenue and EPS as well as the # of analysts and
+		the forward PE. Unfilled data will have a "-" in the field.
+	
+	:param ticker: The string ticker of the company.
+	"""
+	```
+
+#### scrape_statistics()
+* `scrape_statistics(ticker: str) -> dict[str:str]`
+	```
+	"""
+	Returns the following statistics in a dictionary:
+		"beta"
+		"shares-outstanding"
+		"price"
 	"""
 	```
