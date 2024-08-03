@@ -42,6 +42,9 @@ class Stock:
 
 		:param document: An integer where 1=Income Statement, 2=Balance Sheet, 3=Statement of Cash Flows. Nothing is
 			generated for other values.
+
+			* Generally will be provided by stockanalysis.INCOME_STATEMENT, stockanalysis.BALANCE_SHEET, 
+			stockanalysis.CASH_FLOW_STATEMENT, with the correct number being supplied for each document.
 		"""
 		self.financials[document-1] = sa.scrape_financials(self.ticker, document)
 
@@ -78,9 +81,9 @@ class Stock:
 		"""
 		# Get Historic and Current Data
 		if regen_dep_data:
-			self.gen_financials(1)
-			self.gen_financials(2)
-			self.gen_financials(3)
+			self.gen_financials(sa.INCOME_STATEMENT)
+			self.gen_financials(sa.BALANCE_SHEET)
+			self.gen_financials(sa.CASH_FLOW_STATEMENT)
 			self.gen_forecast()
 			self.gen_statistics()
 

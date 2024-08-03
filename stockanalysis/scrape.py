@@ -5,11 +5,14 @@ import lxml.html
 
 def scrape_financials(ticker: str, document: int) -> pandas.DataFrame:
 	"""
-	Returns either the Income Statement, Balance Sheet, or Statement of Cash Flows as a pandas DataFrame.
+	Returns either the Income Statement, Balance Sheet, or Cash Flow Statement as a pandas DataFrame.
 
 	:param ticker: The string ticker of the company.
-	:param document: An integer where 1=Income Statement, 2=Balance Sheet, 3=Statement of Cash Flows. Nothing is
+	:param document: An integer where 1=Income Statement, 2=Balance Sheet, 3=Cash Flow Statement. Nothing is
 		generated for other values.
+
+		* Generally will be provided by stockanalysis.INCOME_STATEMENT, stockanalysis.BALANCE_SHEET, 
+		stockanalysis.CASH_FLOW_STATEMENT, with the correct number being supplied for each document.
 	"""
 	if document == 1:
 		webpage = requests.get("https://stockanalysis.com/stocks/" + ticker.lower() + "/financials/")
