@@ -115,7 +115,10 @@ class Stock:
 		# Historic D&A and CAPEX Data and Rates of Change
 		past_da = [round(self.normalize_num(i)) for i in self.financials[2].loc["Depreciation & Amortization"]][::-1]
 		past_capex = [round(-self.normalize_num(i)) for i in self.financials[2].loc["Capital Expenditures"]][::-1]
-		past_revenue = [round(self.normalize_num(i)) for i in self.financials[0].loc["Revenue"]][::-1]
+		try:
+			past_revenue = [round(self.normalize_num(i)) for i in self.financials[0].loc["Revenue"]][::-1]
+		except:
+			past_revenue = [round(self.normalize_num(i)) for i in self.financials[0].loc["Total Revenue"]][::-1]
 		past_capex_margin = [round(past_capex[i]/past_revenue[i], 6) for i in range(len(past_capex))]
 		past_da_margin = [round(past_da[i]/past_revenue[i], 6) for i in range(len(past_da))]
 		annualized_da_change = (past_da_margin[-1]/past_da_margin[0])**(1/6) - 1
@@ -216,6 +219,8 @@ class Stock:
 
 		:param value: A string number with a unit at the end like B (billions) or M (millions).
 		"""
+		if value == "-":
+			return 0
 		if value[-1] == "B":
 			return float(value[0:(len(value) - 1)].replace(",", "")) * 1000
 		if value[-1] == "M":
