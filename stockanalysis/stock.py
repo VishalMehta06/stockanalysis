@@ -64,7 +64,7 @@ class Stock:
 		"""
 		self.statistics = sa.scrape_statistics(self.ticker)
 
-	def gen_dcf(self, auto_terminal_growth_rate: bool = True, regen_dep_data = True) -> None:
+	def gen_dcf(self, auto_terminal_growth_rate: bool = True, regen_data = True) -> None:
 		"""
 		Generate a DCF and its results: self.dcf (the DCF), self.dcf_margin (Margin of Safety), 
 			self.dcf_result (Intrinsic Value per Share). 
@@ -76,11 +76,11 @@ class Stock:
 		:param auto_terminal_growth_rate: True = Generate terminal growth rate based on revenue estimates. 
 			False = Use self.terminal_growth_rate
 		
-		:param regen_dep_data: True = fetch all financials, forecasts, and statistics from https://stockanalysis.com. 
+		:param regen_data: True = fetch all financials, forecasts, and statistics from https://stockanalysis.com. 
 			False = Use data fetched previously.
 		"""
 		# Get Historic and Current Data
-		if regen_dep_data:
+		if regen_data:
 			self.gen_financials(sa.INCOME_STATEMENT)
 			self.gen_financials(sa.BALANCE_SHEET)
 			self.gen_financials(sa.CASH_FLOW_STATEMENT)

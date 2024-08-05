@@ -47,7 +47,8 @@ def single_dcf(ticker: str, results_fname: str = None, terminal_growth_rate: flo
 	return stock.dcf
 
 
-def multi_dcf(tickers: list[str], results_fname: str = None, sort: bool = True) -> pandas.DataFrame:
+def multi_dcf(tickers: list[str], results_fname: str = None, sort: bool = True, 
+			  min_discount_rate: float = None) -> pandas.DataFrame:
 	"""
 	Complete a Discounted Cash Flow for each ticker in tickers. Each stock will have their own DCF appear in a 
 		separate sheet in the same file. There will also be a summary page containing the highlights of the 
@@ -56,10 +57,11 @@ def multi_dcf(tickers: list[str], results_fname: str = None, sort: bool = True) 
 	A confirmation is printed for each stock completed and error messages for each stock incomplete.
 
 	:param tickers: This list of strings contains all tickers that will be evaluated.
-	:param results_fname: The file name of the results excel sheet. Must end with .xlsx. If None, results will not be 
-		saved in an Excel sheet.
+	:param results_fname: The file name of the results excel sheet. Must end with .xlsx. If None, 
+		results will not be saved in an Excel sheet.
 	:param sort: True = Sort the results A-Z both on the Summary and individual stock sheets. 
 		False = Order of tickers is maintained as provided.
+	:param min_discount_rate: The minimum discount rate percentage for all valuations. For 6%, enter 6 as the value.
 	:return pandas.DataFrame: The Summary sheet with the ticker, discount rate, terminal growth rate, and margin of 
 		safety will be returned. Individual DCFs are only accessible from an Excel file if results_fname is provided.
 	"""
@@ -82,7 +84,10 @@ def multi_dcf(tickers: list[str], results_fname: str = None, sort: bool = True) 
 	count = 1
 	for i in range(len(tickers)):
 		ticker = tickers[i]
-		stock = sa.Stock(ticker)
+		if min_discount_rate:
+			stock = sa.Stock(ticker, min_discount_rate=(min_discount_rate/100.0))
+		else:
+			stock = sa.Stock(ticker)
 		try:
 			stock.gen_dcf()
 			df.loc[i] = [count, ticker.upper(), "$"+str(stock.price), str(stock.discount_rate*100)+"%", str(stock.terminal_growth_rate*100)+"%", stock.dcf_margin]
